@@ -20,13 +20,15 @@ export LC_COLLATE=C
 #Validate DB97 exists or not
 if [[ ! -d ~/$db97 ]]
 then
-  mkdir ~/$db97
-  [[ $? != 0 ]] && { echo "Couldn't Create ~/$db97"; exit 1; }
+  if ! mkdir ~/$db97; then
+    echo "Couldn't Create ~/$db97";
+    exit 1;
+  fi
   echo -e "~/$db97 was created\n";
 fi
 
 #Actual Driving Code
-cd ~/$db97
+cd ~/$db97 || { echo "Couldn't access $HOME/$db97"; exit 1; }
 
 PS3="DB97 #? "
 select choice in "${opts[@]}"
