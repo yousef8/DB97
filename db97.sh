@@ -39,7 +39,7 @@ do
   ;;
 
   "${opts[2]}")
-  echo "To Do"
+  ./connect_db.sh
   ;;
 
   "${opts[3]}")
