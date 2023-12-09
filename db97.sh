@@ -31,7 +31,7 @@ select choice in "${opts[@]}"
 do
   case $choice in
   "${opts[0]}")
-  echo "To Do"
+  ./create_db.sh
   ;;
 
   "${opts[1]}")
