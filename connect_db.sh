@@ -19,7 +19,6 @@ done
 
 #           0             1             2                 3                 4                 5                   6          7
 opts=("Create Table" "List Tables" "Drop Table" "Insert Into Table" "Select from Table" "Delete from Table" "Update Table" "Exit")
-cd "$db97/$db_name" || { echo "Couldn't Connect to $db_name database"; exit 1; }
 echo "Connect to $db_name"
 
 while true; do
