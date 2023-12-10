@@ -35,7 +35,8 @@ while true; do
   fi
   case $opt in
     ${opts[0]})
-    echo "To Do"
+    echo
+    ./create_table.sh "$db_name"
     ;;
 
     ${opts[1]})
