@@ -4,6 +4,7 @@
 [[ "$#" = 1 ]] || { echo "Need 1 argument [The DB name]"; exit 1; }
 
 db="$db97/$1"
+source ./lib/sys_utilities.sh 2> /dev/null || { echo "Couldn't import 'sys_utilities'"; exit 1; }
 table_name=
 no_cols=
 
@@ -11,20 +12,6 @@ abort() {
   rm -f "$db/${table_name:-0}" 2> /dev/null
   rm -f "$db/${table_name:-0}.meta" 2> /dev/null
   return 0;
-}
-
-is_valid_name() {
-  [[ ${1:-0} =~ ^[a-zA-Z_]+[a-zA-Z0-9_-]*$ ]] && return 0;
-  return 1;
-}
-
-is_quit() {
-  if [[ ${1:-0} =~ ^[qQ]+([uU][iI][tT])?$ ]]; then
-    abort;
-    exit 0;
-  fi
-
-  return 1
 }
 
 is_col_exist() {
@@ -40,7 +27,7 @@ is_col_exist() {
 
 get_table_name() {
   read -rp "Table name ('q' to quit) : " table_name
-  is_quit "$table_name"
+  is_quit "$table_name" && { abort; exit 1; }
 
   is_valid_name "$table_name" || { echo "Invalide table name format"; return 1; }
 
@@ -51,7 +38,8 @@ get_table_name() {
 
 get_no_cols() {
   read -rp "No. Cols ('q' to quit) _> " no_cols
-  is_quit "$no_cols"
+  is_quit "$no_cols" && { abort; exit 1; }
+
 
   if (( "$no_cols" <= 0 )); then
     return 1
@@ -72,7 +60,8 @@ get_col() {
 
     read -rp "$prompt name ('q' to quit) _> " col_name
 
-    is_quit "$col_name"
+    is_quit "$col_name" && { abort; exit 1; }
+
 
     is_valid_name "$col_name" || { echo "Invalid column name"; continue; }
 
@@ -87,7 +76,8 @@ get_col() {
     echo    "[2] string"
     read -rp "$prompt Datatype ('q' to quit) _> " opt
 
-    is_quit "$opt"
+    is_quit "$opt" && { abort; exit 1; }
+
 
     ((1 <= opt && opt <= 2)) && break
     echo "Wront Input"
@@ -108,7 +98,8 @@ get_col() {
       echo    "[4] None"
       read -rp "$prompt Constraints ('q' to quit) _> " opt
 
-      is_quit "$opt"
+      is_quit "$opt" && { abort; exit 1; }
+
 
       ((1 <= opt && opt <= 4)) && break
       echo "Wront Input"
