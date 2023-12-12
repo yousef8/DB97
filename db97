@@ -13,7 +13,7 @@ echo '                                              ';
 echo '                                              ';
 
 export db97="$HOME/.db97"
-PATH="$PATH:$PWD"
+PATH="$PWD:$PATH"
 
 opts=("Create DB" "List DB" "Connect DB" "Drop DB" "Exit")
 shopt -s extglob
