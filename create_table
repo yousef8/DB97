@@ -71,14 +71,14 @@ get_col() {
   while true; do
 
     read -rp "$prompt name ('q' to quit) _> " col_name
-    
+
     is_quit "$col_name"
-    
+
     is_valid_name "$col_name" || { echo "Invalid column name"; continue; }
 
     is_col_exist "$col_name"  && { echo "Column already exist"; continue; }
 
-    break 
+    break
   done
 
   local types=("int" "string")
@@ -93,7 +93,7 @@ get_col() {
     echo "Wront Input"
   done
   local col_type="${types[opt-1]}"
-  
+
   ((opt=0))
   local cnstraints=("nn" "u")
   local col_cnstraints=()
@@ -122,7 +122,7 @@ get_col() {
     fi
   fi
 
-  
+
   echo "$col_name:$col_type:$(IFS=","; echo "${col_cnstraints[*]}")" >> "$db/$table_name.meta" || { echo "Error. Couldn't write to file $table_name.meta"; return 1; }
   return 0;
 }

@@ -36,7 +36,7 @@ while true; do
   case $opt in
     ${opts[0]})
     echo
-    ./create_table.sh "$db_name"
+    ./create_table "$db_name"
     ;;
 
     ${opts[1]})
