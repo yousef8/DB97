@@ -32,31 +32,31 @@ PS3="DB97 #? "
 select choice in "${opts[@]}"
 do
   case $choice in
-  "${opts[0]}")
-  create_db
-  ;;
-
-  "${opts[1]}")
-  ./list_db.sh
-  ;;
-
-  "${opts[2]}")
-  connect_db
-  ;;
-
-  "${opts[3]}")
-  ./drop_db.sh
-  ;;
-
-  "${opts[4]}")
-  echo "GoodBye"
-  break
-  ;;
-
-  *)
-  echo "Wrong Choice"
-  ;;
-esac
+    "${opts[0]}")
+      create_db
+    ;;
+    
+    "${opts[1]}")
+      list_db
+    ;;
+    
+    "${opts[2]}")
+      connect_db
+    ;;
+    
+    "${opts[3]}")
+      drop_db
+    ;;
+    
+    "${opts[4]}")
+      echo "GoodBye"
+      break
+    ;;
+    
+    *)
+      echo "Wrong Choice"
+    ;;
+  esac
 done
 
 exit 0
