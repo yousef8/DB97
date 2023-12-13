@@ -26,7 +26,7 @@ while true; do
   for i in ${!opts[@]}; do
     echo "[$((i+1))] ${opts[i]}"
   done
-
+  
   read -rp "$db_name _> " opt
   if [[ "$opt" =~ ^[1-8]$ ]]; then
     opt="${opts[opt-1]}"
@@ -35,42 +35,44 @@ while true; do
   fi
   case $opt in
     ${opts[0]})
-    echo
-    ./create_table.sh "$db_name"
+      echo
+      ./create_table.sh "$db_name"
     ;;
-
+    
     ${opts[1]})
-      echo "To Do"
-      ;;
-
+      echo
+      ./list_table.sh "$db_name"
+    ;;
+    
     ${opts[2]})
-      echo "To Do"
-      ;;
-
+      echo
+      ./drop_table.sh "$db_name"
+    ;;
+    
     ${opts[3]})
       echo "To Do"
-      ;;
-
+    ;;
+    
     ${opts[4]})
       echo "To Do"
-      ;;
-
+    ;;
+    
     ${opts[5]})
       echo "To Do"
-      ;;
-
+    ;;
+    
     ${opts[6]})
       echo "To Do"
-      ;;
-
+    ;;
+    
     ${opts[7]})
       echo "Disconnect from $db_name"
       exit 0
-      ;;
-
+    ;;
+    
     *)
       echo "Wrong Choice"
-      ;;
+    ;;
   esac
   echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 done
