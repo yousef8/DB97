@@ -35,7 +35,7 @@ do
   ;;
 
   "${opts[1]}")
-  echo "To Do"
+  ./list_db.sh
   ;;
 
   "${opts[2]}")
@@ -43,7 +43,7 @@ do
   ;;
 
   "${opts[3]}")
-  echo "To Do"
+  ./drop_db.sh
   ;;
 
   "${opts[4]}")
