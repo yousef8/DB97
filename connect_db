@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
 [[ -z "$db97" ]] && { echo "Script isn't intended to run standalone, instead as part of 'db97' script"; exit 1; }
+source ./lib/sys_utilities.sh 2> /dev/null || { echo "Couldn't import 'sys_utilities'"; exit 1; }
 
 shopt -s extglob
 export LC_COLLATE=C
@@ -8,7 +9,7 @@ export LC_COLLATE=C
 get_db_name() {
   echo
   read -rp "DB name ('q' to quit): " db_name
-  [[ "$db_name" =~ ^[qQ]+([uU][iI][tT])*$ ]] && exit 0;
+  is_quit "$db_name" && exit 0;
 }
 
 get_db_name
@@ -34,23 +35,21 @@ while true; do
     opt="wrong"
   fi
   case $opt in
-    ${opts[0]})
+    ${opts[0]})                     # Create Table
       echo
-      ./create_table.sh "$db_name"
+      create_table "$db_name"
     ;;
     
-    ${opts[1]})
-      echo
-      ./list_table.sh "$db_name"
-    ;;
-    
-    ${opts[2]})
-      echo
-      ./drop_table.sh "$db_name"
-    ;;
-    
-    ${opts[3]})
+    ${opts[1]})                     # List Tables
       echo "To Do"
+    ;;
+    
+    ${opts[2]})                     # Drop Table
+      echo "To Do"
+    ;;
+    
+    ${opts[3]})                     # Insert Into Table
+      insert_in_table "$db_name"
     ;;
     
     ${opts[4]})

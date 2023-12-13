@@ -13,6 +13,8 @@ echo '                                              ';
 echo '                                              ';
 
 export db97="$HOME/.db97"
+PATH="$PWD:$PATH"
+
 opts=("Create DB" "List DB" "Connect DB" "Drop DB" "Exit")
 shopt -s extglob
 export LC_COLLATE=C
@@ -31,7 +33,7 @@ select choice in "${opts[@]}"
 do
   case $choice in
   "${opts[0]}")
-  ./create_db.sh
+  create_db
   ;;
 
   "${opts[1]}")
@@ -39,7 +41,7 @@ do
   ;;
 
   "${opts[2]}")
-  ./connect_db.sh
+  connect_db
   ;;
 
   "${opts[3]}")

@@ -1,0 +1,47 @@
+#!/usr/bin/bash
+
+# Initializatin for script to work
+[[ -z "$db97" ]] && { echo -e "Environment Varialbe \$db97 isn't set.\nRun 'db97.sh' script instead"; exit 1; }
+[[ "$#" = 1 ]] || { echo "Need 1 argument [The DB name]"; exit 1; }
+db="$db97/$1"
+
+source ./lib/sys_utilities.sh || { echo "Couldn't import 'sys_utilities'"; exit 1; }
+source ./lib/table_utilities.sh || { echo "Couldn't import 'table_utilities'"; exit 1; }
+shopt -s extglob
+export LC_COLLATE=C
+
+# Get table name
+read -rp "Table name ('q' to quit) _> " table
+is_quit "$table" && { exit 1; }
+
+while [[ ! -f "$db/${table:-0}" ]]; do
+  echo "$table doesnt't exist"
+  read -rp "Table name ('q' to quit) _> " table
+  is_quit "$table" && { exit 1; }
+done
+
+# Get Columns Values
+((field_no = 1 ))
+record=""
+while IFS=":" read -r -u 3 name type rules; do
+
+  read -rp "$name is [$type] [${rules:- }] ('q' to quit) _> " input
+  is_quit "$input" && { exit 1; }
+
+  while ! check_type "$input" "$type"; do
+    read -rp "$name [$type] [${rules:- }] ('q' to quit) is _> " input
+    is_quit "$input" && { exit 1; }
+  done
+
+  while ! check_rules "$field_no" "$input" ${rules//,/ }; do
+    read -rp "$name [$type] [${rules:- }] ('q' to quit) is _> " input
+    is_quit "$input" && { exit 1; }
+  done
+
+  record+="$input:"
+  echo "=================="
+  ((field_no++))
+done 3< "$db/$table.meta"
+
+echo "${record%:}" >> "$db/$table"
+
