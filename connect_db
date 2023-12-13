@@ -41,11 +41,13 @@ while true; do
     ;;
     
     ${opts[1]})                     # List Tables
-      echo "To Do"
+      echo
+      list_table "$db_name"
     ;;
     
     ${opts[2]})                     # Drop Table
-      echo "To Do"
+      echo
+      drop_table "$db_name"
     ;;
     
     ${opts[3]})                     # Insert Into Table
