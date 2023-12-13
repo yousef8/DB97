@@ -35,21 +35,21 @@ while true; do
     opt="wrong"
   fi
   case $opt in
-    ${opts[0]})
+    ${opts[0]})                     # Create Table
     echo
     create_table "$db_name"
     ;;
 
-    ${opts[1]})
+    ${opts[1]})                     # List Tables
       echo "To Do"
       ;;
 
-    ${opts[2]})
+    ${opts[2]})                     # Drop Table
       echo "To Do"
       ;;
 
-    ${opts[3]})
-      echo "To Do"
+    ${opts[3]})                     # Insert Into Table
+      insert_in_table "$db_name"
       ;;
 
     ${opts[4]})
