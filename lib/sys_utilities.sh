@@ -17,7 +17,6 @@ menu() {
     ((i++))
   done
 
-  echo
   while true; do
     read -rp "$prompt ('q' to quit) _> " choice
     is_quit "$choice" && return 0
