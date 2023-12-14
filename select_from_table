@@ -1,0 +1,45 @@
+#!/usr/bin/bash
+
+[[ -z "$db97" ]] && { echo -e "Environment Varialbe \$db97 isn't set.\nRun 'db97.sh' script instead"; exit 1; }
+[[ "$#" = 1 ]] || { echo "Need 1 argument [The DB name]"; exit 1; }
+db="$db97/$1"
+tmp_file="/tmp/$table.select"
+
+source ./lib/sys_utilities.sh || { echo "Couldn't import 'sys_utilities'"; exit 1; }
+source ./lib/table_utilities.sh || { echo "Couldn't import 'table_utilities'"; exit 1; }
+shopt -s extglob
+export LC_COLLATE=C
+
+# Get Table Name
+read -rp "Table name ('q' to quit) _> " table
+is_quit "$table" && { exit 1; }
+
+while [[ ! -f "$db/${table:-0}" ]]; do
+  echo "$table doesnt't exist"
+  read -rp "Table name ('q' to quit) _> " table
+  is_quit "$table" && { exit 1; }
+done
+
+# Get column names
+cols=()
+while read -r col; do
+  cols+=($col)
+done < <(cut -d: -f1 "$db/$table.meta")
+
+menu "Col to select by" "${cols[@]}"
+col="$?"
+[[ $col = 0 ]] && { exit 1; }
+
+read -rp "Value to select by _> " value
+header=""
+for col_name in "${cols[@]}"; do
+  header+="$col_name:"
+done
+
+echo $header >> $tmp_file
+awk -v field="$col" -v value="$value" 'BEGIN{FS=":"} {if ($field == value) print $0}' "$db/$table" >> "$tmp_file"
+
+echo
+cat "$tmp_file" | column -t -s ":"
+
+rm -rf "$tmp_file"
