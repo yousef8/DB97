@@ -6,8 +6,8 @@ db="$db97/$1"
 tmp_file="/tmp/$table.select"
 
 
-source ./lib/sys_utilities.sh || { echo "Couldn't import 'sys_utilities'"; exit 1; }
-source ./lib/table_utilities.sh || { echo "Couldn't import 'table_utilities'"; exit 1; }
+source sys_utilities.sh || { echo "Couldn't import 'sys_utilities'"; exit 1; }
+source table_utilities.sh || { echo "Couldn't import 'table_utilities'"; exit 1; }
 shopt -s extglob
 export LC_COLLATE=C
 

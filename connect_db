@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 [[ -z "$db97" ]] && { echo "Script isn't intended to run standalone, instead as part of 'db97' script"; exit 1; }
-source ./lib/sys_utilities.sh 2> /dev/null || { echo "Couldn't import 'sys_utilities'"; exit 1; }
+source sys_utilities.sh 2> /dev/null || { echo "Couldn't import 'sys_utilities'"; exit 1; }
 
 shopt -s extglob
 export LC_COLLATE=C

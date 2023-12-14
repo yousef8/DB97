@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./lib/sys_utilities.sh || { echo "Couldn't import 'sys_utilities'"; exit 1; }
+source sys_utilities.sh || { echo "Couldn't import 'sys_utilities'"; exit 1; }
 
 # Only run this script through "db97"
 [[ -z "$db97" ]] && { echo "This script isn't intended to run standalon insead as a part of the db97 script"; exit 1; }

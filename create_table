@@ -4,7 +4,7 @@
 [[ "$#" = 1 ]] || { echo "Need 1 argument [The DB name]"; exit 1; }
 
 db="$db97/$1"
-source ./lib/sys_utilities.sh 2> /dev/null || { echo "Couldn't import 'sys_utilities'"; exit 1; }
+source sys_utilities.sh 2> /dev/null || { echo "Couldn't import 'sys_utilities'"; exit 1; }
 table_name=
 no_cols=
 

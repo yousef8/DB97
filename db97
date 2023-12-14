@@ -13,6 +13,9 @@ echo '                                              ';
 echo '                                              ';
 
 export db97="$HOME/.db97"
+for dir in */; do
+  PATH="$PWD/$dir:$PATH"
+done
 PATH="$PWD:$PATH"
 
 opts=("Create DB" "List DB" "Connect DB" "Drop DB" "Exit")
