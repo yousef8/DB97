@@ -54,8 +54,8 @@ while true; do
       insert_in_table "$db_name"
     ;;
     
-    ${opts[4]})
-      echo "To Do"
+    ${opts[4]})                     # Select from Table
+      select_from_table "$db_name"
     ;;
     
     ${opts[5]})

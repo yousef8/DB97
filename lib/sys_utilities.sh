@@ -8,3 +8,20 @@ is_quit() {
 
   return 1
 }
+
+menu() {
+  prompt="$1"
+  ((i=1))
+  for opt in "${@:2}"; do
+    echo "[$i] $opt"
+    ((i++))
+  done
+
+  while true; do
+    read -rp "$prompt ('q' to quit) _> " choice
+    is_quit "$choice" && return 0
+    [[ ! "$choice" =~ ^[0-9]*$ ]] && { echo "Only 'q' &&  integer options allowed"; continue; }
+    (( 1 <= choice && choice <= $#-1 )) && return "$choice"
+    echo "Choice out of range"
+  done
+}
