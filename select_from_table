@@ -79,7 +79,7 @@ done
 # Get column names
 col_names=()
 while read -r col; do
- col_names+=($col)
+ col_names+=("$col")
 done < <(cut -d: -f1 "$db/$table.meta")
 
 ######################################## Select Columns ##############################
@@ -92,8 +92,8 @@ echo "[$i] *"
 
 while true; do
   read -rp "Cols to display [space separated] ('q' to quit) _> " -a choice
-  is_quit "$choice" && exit 1;
-  [[ ${#choice[@]} < 1  ]] && { echo "Invalid choice"; continue; }
+  is_quit "${choice[0]}" && exit 1;
+  [[ ${#choice[@]} -lt 1  ]] && { echo "Invalid choice"; continue; }
   is_all_int "${choice[@]}" || { echo "There is non int"; continue; }
   is_out_of_range "$((${#col_names[@]} + 1))" "${choice[@]}" && { echo "Choice out of range"; continue; }
   break;
@@ -111,7 +111,7 @@ else
   for i in "${!choice[@]}"; do
     col_num=${choice[i]}
     header+="${col_names[col_num-1]}:"
-    cols_to_display+=($col_num)
+    cols_to_display+=("$col_num")
   done
   header="${header%?}"
   unset col_num
@@ -126,7 +126,7 @@ cond_col="$status"
 
 read -rp "Value to select by ('*'for all) _> " cond_value
 
-echo "$header" >> $tmp_file
+echo "$header" >> "$tmp_file"
 
 if [[ "$cond_value" == "*" ]]; then
   cut -d: -f "$(IFS=","; echo "${cols_to_display[@]}")" < <(awk 'BEGIN{FS=":"} {print}' "$db/$table") >> "$tmp_file"
@@ -135,5 +135,6 @@ else
 fi
 
 echo
-cat "$tmp_file" | column -t -s ":"
+column -t -s ":" "$tmp_file"
 rm -rf "$tmp_file"
+
