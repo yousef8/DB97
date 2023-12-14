@@ -63,7 +63,8 @@ while true; do
     ;;
     
     ${opts[6]})
-      echo "To Do"
+      echo
+      update_table "$db_name"
     ;;
     
     ${opts[7]})
