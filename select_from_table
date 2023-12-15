@@ -110,7 +110,7 @@ if is_all "$((${#col_names[@]} + 1))" "${choice[@]}"; then
 else
   for i in "${!choice[@]}"; do
     col_num=${choice[i]}
-    header+="${col_names[col_num-1]}:"
+    [[ "$header" =~ "${col_names[col_num-1]}" ]] || { header+="${col_names[col_num-1]}:"; }
     cols_to_display+=("$col_num")
   done
   header="${header%?}"
