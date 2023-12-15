@@ -8,12 +8,32 @@ source sys_utilities.sh 2> /dev/null || { echo "Couldn't import 'sys_utilities'"
 table_name=
 no_cols=
 
+#######################################
+# Remove the created table & table.meta when user quits in the middle of process
+# Globals:
+#   db: path to db
+#   table_name: table name
+# Arguments:
+#   None
+# Returns:
+#   0 if finished successfully, will return 0 anyways.
+#######################################
 abort() {
   rm -f "$db/${table_name:-0}" 2> /dev/null
   rm -f "$db/${table_name:-0}.meta" 2> /dev/null
   return 0;
 }
 
+#######################################
+# check if a column with the same name already exist
+# Globals:
+#   db: path to db
+#   table_name: table name
+# Arguments:
+#   column name to check on
+# Returns:
+#   0 if col already exist, 1 if it doesn't exist.
+#######################################
 is_col_exist() {
   local cols=("$(cut -d: -f1 "$db/$table_name.meta")")
 
@@ -24,7 +44,16 @@ is_col_exist() {
   return 1;
 }
 
-
+#######################################
+# Prompt the user for table name and make the required validations
+# Globals:
+#   db: path to db
+#   table_name: if defines table name
+# Arguments:
+#   None
+# Returns:
+#   0 if table name is valid, 1 if it isn't.
+#######################################
 get_table_name() {
   read -rp "Table name ('q' to quit) : " table_name
   is_quit "$table_name" && { abort; exit 1; }
@@ -36,6 +65,15 @@ get_table_name() {
   return 0;
 }
 
+#######################################
+# Prompt the user for the no. cols in the newly created table
+# Globals:
+#   no_cols: the function defines and assign result to it
+# Arguments:
+#   None
+# Returns:
+#   0 if no. cols is valid, 1 if it isn't.
+#######################################
 get_no_cols() {
   read -rp "No. Cols ('q' to quit) _> " no_cols
   is_quit "$no_cols" && { abort; exit 1; }
@@ -48,6 +86,15 @@ get_no_cols() {
   return 0
 }
 
+#######################################
+# Get all the required info about the cols and store it in table.meta
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   0 if it gets the cols successfully, EXIT with 1 if user wants to quit
+#######################################
 get_col() {
   local col_name
   if [[ "${2:-false}" = "true" ]]; then
