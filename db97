@@ -26,7 +26,7 @@ export LC_COLLATE=C
 #Validate DB97 exists or not
 if [[ ! -d $db97 ]]
 then
-  mkdir $db97 || { echo "Couldn't Create $db97"; exit 1; }
+  mkdir "$db97" || { echo "Couldn't Create $db97"; exit 1; }
   echo -e "$db97 was created\n";
 fi
 
