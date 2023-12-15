@@ -65,6 +65,7 @@ while true; do
   fi
 done
 
+awk -F: -v fn="$field_number" -v fv="$field_value" -v tr="$table_record" -v rv="$record_value" '{ if ($tr == rv) { $fn = fv; print} else { print } }' "$db97/$db_name/$table_name"
 
 
 
@@ -80,16 +81,3 @@ done
 # 1 ID:int:pk
 # 2 Name:string:nn,u
 # 3 Track:string:nn
-
-# field_number => The Number Of Field To Update
-# field_value  => Enter The Value You Want To Update (The New Value That Will Be Replace By The Old Value)
-# table_record =>  Search The Record of Data (Line) Within Database that You want to update
-# record_value => The Value That will be use it to make a search
-
-# (Example)
-
-# Field 1 (ID)                                Field 2 (Name)                            Field 3 (Track)
-# Value 15  => Should Be int           Value Ahmed  => Should Be String          Value Test => Should Be String     Check The Datatype According to meta file
-
-# Record 1  (Search By)                   Record 2  (Search By)                        Record 3 (Search By)
-# Value  15 => Should Be int           Value George  => Should Be String         Value Open-Source => Should Be String
