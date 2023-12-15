@@ -88,12 +88,14 @@ check_rules() {
 #######################################
 check_type() {
   (( $# != 2 )) && { echo "check_type() takes 2 args [value, type]"; exit 1; }
+  local value="$1"
+  local type="$2"
 
   if [[ "$type" = "int" ]]; then
-    [[ "$input" =~ ^[0-9]*$ ]] && return 0;
+    [[ "$value" =~ ^[0-9]*$ ]] && return 0;
     echo "Must be int"
   elif [[ "$type" = "string" ]]; then
-    [[ ! "${input:- }" =~ ^[0-9]*$ ]] && return 0;
+    [[ ! "${value:- }" =~ ^[0-9]*$ ]] && return 0;
     echo "Must be string"
   fi
 
