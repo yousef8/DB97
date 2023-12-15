@@ -1,27 +1,38 @@
 #!/bin/bash
+source table_utilities.sh || { echo "couldn't emport table utilities"; exist 1; }
 db_name="$1"
 
 # Name Of The Table That Will Be Update
 read -p "Enter The Table To Update: " table_name
 
+
 if [ -f "$db97/$db_name/$table_name.meta" ]; then
+  
+  while read -r col; do
+    col_types+=("$col");
+  done < <(cut -d: -f2 ../.db97/ITI/student.meta )
+  
+  
   cut -d: -f1 "$db97/$db_name/$table_name.meta" | nl
   echo
   # The Number Of Field To Update
   while true; do
     read -p "Choose The Number Of Field To Update: " field_number
     echo
-    
-    if [[ -z $field_number ]]; then
-      echo "No Input Detected, Enter A Valid Number..."
-      elif [[ "$field_number" -le 0 || "$field_number" -gt $(wc -l "$db97/$db_name/$table_name.meta" | cut -d ' ' -f 1) ]]; then
-      echo "The Choice Is Out Of The Range, Enter A Valid Number..."
-      elif [[ $field_number =~ ^[0-9]+$ ]]; then
-      read -p "Enter The Value To Update: " field_value # Enter The Value You Want To Update
-      break
+    # if the input value is a number
+    if [[ $field_number =~ ^[0-9]+$ ]]; then
+      
+      if [[ "$field_number" -le 0 || "$field_number" -gt $(wc -l "$db97/$db_name/$table_name.meta" | cut -d ' ' -f 1) ]]; then
+        echo "Sorry - The Value Is Out Of Range..."
+        continue
+      else
+        read -p "Enter The Value To Update: " field_value # Enter The Value You Want To Update
+        check_type "$field_value" "${col_types[field_number -1]}" && break;
+      fi
+      
     else
       echo "Wrong Choice, Enter A Valid Number...."
-      break
+      continue
     fi
   done
   
@@ -31,23 +42,26 @@ else
 fi
 
 
-cut -d: -f1 "$db97/$db_name/$table_name.meta" | nl
-echo
+
 
 while true; do
+  cut -d: -f1 "$db97/$db_name/$table_name.meta" | nl
+  echo
   read -rp "Search For The Record By: " table_record # Search The Record By
   echo
   
-  if [[ -z $table_record ]]; then  # It's commonly used in conditional statements to test if a variable contains any value or is empty.
-    echo "No Input Detected, Enter A Valid Number..."
-    elif [[ "$table_record" -le 0 || "$table_record" -gt $(wc -l "$db97/$db_name/$table_name.meta" | cut -d ' ' -f 1) ]]; then
-    echo "The Choice Is Out Of The Range, Enter A Valid Number..."
-    elif [[ $table_record =~ ^[0-9]+$ ]]; then
-    read -rp "Enter The Search Value: " record_value
-    # SED => Search and Replace
-    break
+  if [[ $table_record =~ ^[0-9]+$  ]]; then  # It's commonly used in conditional statements to test if a variable contains any value or is empty.
+    
+    if [[ "$table_record" -le 0 || "$table_record" -gt $(wc -l "$db97/$db_name/$table_name.meta" | cut -d ' ' -f 1) ]]; then
+      echo "The Choice Is Out Of The Range, Enter A Valid Number..."
+      continue
+    else
+      read -rp "Enter The Value Search By: " record_value
+      check_type "$record_value" "${col_types[table_record -1]}" &&  break;
+    fi
   else
     echo "Wrong Choice, Enter A Valid Number..."
+    break
   fi
 done
 
@@ -61,3 +75,21 @@ done
 # - is file is exist or not
 
 
+#cut -d: -f1 "$db97/$db_name/$table_name.meta"
+
+# 1 ID:int:pk
+# 2 Name:string:nn,u
+# 3 Track:string:nn
+
+# field_number => The Number Of Field To Update
+# field_value  => Enter The Value You Want To Update (The New Value That Will Be Replace By The Old Value)
+# table_record =>  Search The Record of Data (Line) Within Database that You want to update
+# record_value => The Value That will be use it to make a search
+
+# (Example)
+
+# Field 1 (ID)                                Field 2 (Name)                            Field 3 (Track)
+# Value 15  => Should Be int           Value Ahmed  => Should Be String          Value Test => Should Be String     Check The Datatype According to meta file
+
+# Record 1  (Search By)                   Record 2  (Search By)                        Record 3 (Search By)
+# Value  15 => Should Be int           Value George  => Should Be String         Value Open-Source => Should Be String
