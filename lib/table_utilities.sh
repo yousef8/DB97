@@ -1,3 +1,12 @@
+#######################################
+# Check if arg[1] is null or not
+# Globals:
+#   None
+# Arguments:
+#   String to validate
+# Returns:
+#   0 if null, 1 if not
+#######################################
 is_null() {
   (( $# != 1 )) && { echo "is_null() takes 1 argument"; exit 1; }
   # Remove leading/trailing whitespaces
@@ -8,6 +17,16 @@ is_null() {
   return 1;
 }
 
+#######################################
+# Check if arg[2] is unique across db table
+# Globals:
+#   db: path to db
+#   table: table name
+# Arguments:
+#   no. field, value to check its uniquness
+# Returns:
+#   0 if unique, 1 if not
+#######################################
 is_unique() {
   (( $# != 2 )) && { echo "is_unique() takes 2 args [field_no, value]"; exit 1; }
   local field_no="$1"
@@ -17,6 +36,18 @@ is_unique() {
   return 1
 }
 
+#######################################
+# Check if value is unique in a given table
+# Globals:
+#   db: path to db
+#   table: table name
+# Arguments:
+#   no. field, value to check against rules, rules (nn, u, pk)
+# Outputs:
+#   Appropriate Error Message
+# Returns:
+#   0 if value conforms with all rules, 1 if not
+#######################################
 check_rules() {
   if (( ! $# >= 1 )); then
     echo "check_rules() takes at least 2 arg [field_no value [rule1[rule2..]]]"
@@ -46,6 +77,15 @@ check_rules() {
   return 0
 }
 
+#######################################
+# Check arg[1] is of valid type given in arg[2] (int || string)
+# Globals:
+#   None
+# Arguments:
+#   string to validate, type [int || string]
+# Returns:
+#   0 if string is of valid type, 1 if not
+#######################################
 check_type() {
   (( $# != 2 )) && { echo "check_type() takes 2 args [value, type]"; exit 1; }
 
