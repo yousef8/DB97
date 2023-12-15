@@ -38,16 +38,37 @@ is_quit() {
 #   0 if user choose quit, (1 - no. choices) otherwise
 #######################################
 menu() {
+  ##
+  # Color Variables
+  ##
+  local green='\e[1;32m'
+  local cyan='\e[1;36m'
+  local clear='\e[0m'
+  
+  ##
+  # Color Functions
+  ##
+  color_green(){
+  echo -ne $green$1$clear
+  }
+  color_cyan(){
+  echo -ne $cyan$1$clear
+  }
+
+  ##
+  # Actual Menu
+  ##
   local prompt="$1"
   local i
   ((i=1))
   for opt in "${@:2}"; do
-    echo "[$i] $opt"
+    echo -e "$(color_green "[$i]") $(color_cyan "$opt")"
     ((i++))
   done
 
   while true; do
-    read -rp "$prompt ('q' to quit) _> " choice
+    echo -ne "$(color_green "$prompt ('q' to quit) _> ")"
+    read -r choice
     is_quit "$choice" && return 0
     [[ ! "$choice" =~ ^[0-9]*$ ]] && { echo "Only 'q' &&  integer options allowed"; continue; }
     (( 1 <= choice && choice <= $#-1 )) && return "$choice"
