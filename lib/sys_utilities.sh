@@ -38,7 +38,8 @@ is_quit() {
 #   0 if user choose quit, (1 - no. choices) otherwise
 #######################################
 menu() {
-  prompt="$1"
+  local prompt="$1"
+  local i
   ((i=1))
   for opt in "${@:2}"; do
     echo "[$i] $opt"
