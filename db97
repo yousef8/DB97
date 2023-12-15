@@ -18,7 +18,8 @@ for dir in */; do
 done
 PATH="$PWD:$PATH"
 
-opts=("Create DB" "List DB" "Connect DB" "Drop DB" "Exit")
+source "sys_utilities.sh" || { echo "Couldn't import 'sys_utilities'"; exit 1; }
+opts=("Create DB" "List DB" "Connect DB" "Drop DB")
 shopt -s extglob
 export LC_COLLATE=C
 
@@ -30,36 +31,40 @@ then
 fi
 
 #Actual Driving Code
-
-PS3="DB97 #? "
-select choice in "${opts[@]}"
-do
+menu "DB97" "${opts[@]}"; status="$?"
+while [[ "$status" -ne 0 ]]; do
+  choice="${opts[status-1]}"
+  echo
   case $choice in
-    "${opts[0]}")
+    "${opts[0]}")             # Create DB
       create_db
     ;;
-    
-    "${opts[1]}")
+
+    "${opts[1]}")             # List DB
       list_db
     ;;
-    
-    "${opts[2]}")
+
+    "${opts[2]}")             # Connect DB
       connect_db
     ;;
-    
-    "${opts[3]}")
+
+    "${opts[3]}")             # Drop DB
       drop_db
     ;;
-    
-    "${opts[4]}")
-      echo "GoodBye"
-      break
-    ;;
-    
+
     *)
       echo "Wrong Choice"
     ;;
   esac
+
+  echo
+  for _ in {1..80}; do
+    echo -n ">"
+  done
+  echo -e "\n"
+
+  menu "DB97" "${opts[@]}"; status="$?"
 done
 
+echo "GoodBye"
 exit 0

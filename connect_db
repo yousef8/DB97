@@ -7,7 +7,6 @@ shopt -s extglob
 export LC_COLLATE=C
 
 get_db_name() {
-  echo
   read -rp "DB name ('q' to quit): " db_name
   is_quit "$db_name" && exit 0;
 }
@@ -18,63 +17,55 @@ while [[ ! -d "$db97/${db_name:-0}/" ]]; do
   get_db_name
 done
 
-#           0             1             2                 3                 4                 5                   6          7
-opts=("Create Table" "List Tables" "Drop Table" "Insert Into Table" "Select from Table" "Delete from Table" "Update Table" "Exit")
-echo "Connect to $db_name"
+#           0             1             2                 3                 4                 5                   6
+opts=("Create Table" "List Tables" "Drop Table" "Insert Into Table" "Select from Table" "Delete from Table" "Update Table")
+echo -e "Connect to $db_name\n"
 
-while true; do
+menu "$db_name" "${opts[@]}"; status="$?";
+while [[ "$status" -ne 0 ]]; do
+  choice="${opts[status-1]}"
   echo
-  for i in ${!opts[@]}; do
-    echo "[$((i+1))] ${opts[i]}"
-  done
-  
-  read -rp "$db_name _> " opt
-  if [[ "$opt" =~ ^[1-8]$ ]]; then
-    opt="${opts[opt-1]}"
-  else
-    opt="wrong"
-  fi
-  case $opt in
-    ${opts[0]})                     # Create Table
-      echo
+  case "$choice" in
+    "${opts[0]}")                     # Create Table
       create_table "$db_name"
     ;;
-    
-    ${opts[1]})                     # List Tables
-      echo
+
+    "${opts[1]}")                     # List Tables
       list_table "$db_name"
     ;;
-    
-    ${opts[2]})                     # Drop Table
-      echo
+
+    "${opts[2]}")                     # Drop Table
       drop_table "$db_name"
     ;;
-    
-    ${opts[3]})                     # Insert Into Table
+
+    "${opts[3]}")                     # Insert Into Table
       insert_in_table "$db_name"
     ;;
-    
-    ${opts[4]})                     # Select from Table
+
+    "${opts[4]}")                     # Select from Table
       select_from_table "$db_name"
     ;;
-    
-    ${opts[5]})
+
+    "${opts[5]}")                     # Delete from Table
       echo "To Do"
     ;;
-    
-    ${opts[6]})
-      echo
+
+    "${opts[6]}")                       # Update in Table
       update_table "$db_name"
     ;;
-    
-    ${opts[7]})
-      echo "Disconnect from $db_name"
-      exit 0
-    ;;
-    
+
     *)
       echo "Wrong Choice"
     ;;
   esac
-  echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
+  echo
+  for _ in {1..80}; do
+    echo -n "-"
+  done
+  echo -e "\n"
+
+  menu "$db_name" "${opts[@]}"; status="$?";
 done
+
+exit 0

@@ -118,17 +118,8 @@ get_col() {
   done
 
   local types=("int" "string")
-  while true; do
-    echo -e "[1] int"
-    echo    "[2] string"
-    read -rp "$prompt Datatype ('q' to quit) _> " opt
+  menu "$prompt Datatype" "${types[@]}" && { abort; exit 1; } || opt="$?"
 
-    is_quit "$opt" && { abort; exit 1; }
-
-
-    ((1 <= opt && opt <= 2)) && break
-    echo "Wront Input"
-  done
   local col_type="${types[opt-1]}"
 
   ((opt=0))
@@ -138,19 +129,7 @@ get_col() {
   if [[ "${2:-false}" = "true" ]]; then
     { col_cnstraints+=("pk"); }
   else
-    while true; do
-      echo -e "[1] Not Null"
-      echo    "[2] Unique"
-      echo    "[3] Both"
-      echo    "[4] None"
-      read -rp "$prompt Constraints ('q' to quit) _> " opt
-
-      is_quit "$opt" && { abort; exit 1; }
-
-
-      ((1 <= opt && opt <= 4)) && break
-      echo "Wront Input"
-    done
+    menu "$prompt" "Not Null" "Unique" "Both" "None" && { abort; exit 1; } || opt="$?"
 
     if (( 1 <= opt && opt <= 2 )); then
           col_cnstraints[0]="${cnstraints[opt-1]}"
@@ -174,7 +153,6 @@ while true; do
   touch "$db/$table_name" || { echo "'touch' couldn't create $table_name table"; continue; }
   touch "$db/$table_name.meta" || { echo "'touch' couldn't create $table_name.meta table"; abort; continue; }
 
-  
   while ! get_no_cols; do
   echo "Try Again!!"
   done
@@ -183,7 +161,7 @@ while true; do
   while ! get_col 1 true; do
   echo "Try Again!!"
   done
-  
+
   # Get rest of cols
   for (( i = 2; i <= no_cols; ++i )); do
     get_col "$i"
