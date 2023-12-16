@@ -1,0 +1,103 @@
+#!/usr/bin/bash
+
+#----------------------------------------------------------------------------------------
+#                         Script Initialization
+#---------------------------------------------------------------------------------------
+source sys_utilities.sh || { echo "Couldn't import 'sys_utilities'"; exit 1; }
+source table_utilities.sh || { echo "Couldn't import 'sys_utilities'"; exit 1; }
+[[ -z "$db97" ]] && { echo -e "Environment Varialbe \$db97 isn't set.\nRun 'db97.sh' script instead"; exit 1; }
+[[ "$#" = 1 ]] || { echo "Need 1 argument [The DB name]"; exit 1; }
+db="$db97/$1"
+tmp_file="/tmp/db97.delete.tmp"
+delete_record_tmp_file="/tmp/db97.show.deleted.tmp"
+
+
+#----------------------------------------------------------------------------------------
+#                         Get Table Name
+#---------------------------------------------------------------------------------------
+while true; do
+  read -rp "Table name ('q' to quit) _> " table
+  is_quit "$table" && { exit 1; }
+  [[ -f "$db/${table:-0}" ]] && { break; }
+  echo "$table doesnt't exist"; 
+done
+
+#------------------------------------------------------------
+#             Get Column names & types
+#------------------------------------------------------------
+col_names=()
+while read -r col; do
+ col_names+=("$col")
+done < <(cut -d: -f1 "$db/$table.meta")
+
+while read -r col; do
+ col_types+=("$col")
+done < <(cut -d: -f2 "$db/$table.meta")
+
+no_cols=${#col_names[@]}
+
+#######################################
+# Delete all records in a table
+# Globals:
+#   col_names : array of all the column names
+#   db : path to db
+#   table : table name
+#   tmp_file : path to tmp file
+# Arguments:
+#   None
+# Returns:
+#   0 if deleted successfully, 1 otherwise
+#######################################
+delete_all_records() {
+    echo $(IFS=":"; echo "${col_names[*]}") > "$tmp_file"
+
+    cat "$db/$table" >> "$tmp_file"
+    echo > "$db/$table" || { echo "Couldn't delete table contents"; rm "$tmp_file"; return 1; }
+
+    echo "You just deleted : "
+    column -t -s ":" "$tmp_file"
+    rm "$tmp_file"
+    return 0;
+}
+
+#-------------------------------------------------------------
+#             Driving Code
+#-------------------------------------------------------------
+while true; do
+  # Menu
+  echo ""
+  for (( i =1; i <= no_cols; i++)); do
+    echo "[$i] ${col_names[i-1]}"
+  done
+
+  # Input Validation
+  while true; do
+    read -rp "Col to delete records by ('q' to quit) ('*' for all) _> " choice
+    is_quit "$choice" && { exit 1; }
+    [[ "$choice" =~ ^\*$  || "$choice" =~ ^[0-9]+$ &&  "$choice" =~ ^[0-9]$ && "$choice" -ge 1 && "$choice" -le "$no_cols" ]] && break;
+    echo "Invalid Input"
+  done
+
+
+  # if user choose to delete all records
+  [[ "$choice" =~ ^\*$ ]] && { echo ""; delete_all_records; echo "";  continue; }
+
+  # If user choose to delete by column
+  echo ""
+  while true; do
+    read -rp "Condition value ('q' to quit) _> " value
+    is_quit "$value" && exit 1;
+    check_type "$value" "${col_types[choice-1]}" && { break; }
+  done
+
+  echo $(IFS=":"; echo "${col_names[*]}") > "$delete_record_tmp_file"                                                               # Add header to tmp file with delete records
+  awk -F: -v field="$choice" -v value="$value" ' ($field != value) { print } ' "$db/$table" > "$tmp_file"                           # Result after deletion
+  awk -F: -v field="$choice" -v value="$value" ' ($field == value) { print } ' "$db/$table" >> "$delete_record_tmp_file"            # Deleted records
+
+  cat "$tmp_file" > "$db/$table" || { echo "Couldn't delete records"; rm "$tmp_file" "$delete_record_tmp_file"; continue; }
+
+  echo -e "\nYou just deleted : "
+  column -t -s ":" "$delete_record_tmp_file"
+
+  rm "$tmp_file" "$delete_record_tmp_file"
+done
