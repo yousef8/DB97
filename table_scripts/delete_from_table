@@ -54,7 +54,7 @@ delete_all_records() {
     cat "$db/$table" >> "$tmp_file"
     echo > "$db/$table" || { echo "Couldn't delete table contents"; rm "$tmp_file"; return 1; }
 
-    echo "You just deleted : "
+    echo_error "You just deleted : \n"
     column -t -s ":" "$tmp_file"
     rm "$tmp_file"
     return 0;
@@ -96,7 +96,7 @@ while true; do
 
   cat "$tmp_file" > "$db/$table" || { echo "Couldn't delete records"; rm "$tmp_file" "$delete_record_tmp_file"; continue; }
 
-  echo -e "\nYou just deleted : "
+  echo_error "\nYou just deleted :\n"
   column -t -s ":" "$delete_record_tmp_file"
 
   rm "$tmp_file" "$delete_record_tmp_file"
