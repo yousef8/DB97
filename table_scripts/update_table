@@ -65,19 +65,8 @@ while true; do
   fi
 done
 
-awk -F: -v fn="$field_number" -v fv="$field_value" -v tr="$table_record" -v rv="$record_value" '{ if ($tr == rv) { $fn = fv; print} else { print } }' "$db97/$db_name/$table_name"
+awk -F: -v fn="$field_number" -v fv="$field_value" -v tr="$table_record" -v rv="$record_value" '{ if ($tr == rv) { $fn = fv; print} else { print } }' "$db97/$db_name/$table_name" > temp_file
+mv temp_file "$db97/$db_name/$table_name"
+echo "Value replaced successfully!"
 
-
-
-# Error Handling :
-# - No input detected
-# - Out Of The Range
-# - is a number Datatype
-# - is file is exist or not
-
-
-#cut -d: -f1 "$db97/$db_name/$table_name.meta"
-
-# 1 ID:int:pk
-# 2 Name:string:nn,u
-# 3 Track:string:nn
+# "$db97/$db_name/$table_name" > temp_file && mv temp_file "$db97/$db_name/$table_name" && echo "Value replaced successfully!"
