@@ -1,3 +1,41 @@
+##
+# Color Variables
+##
+green='\e[1;32m'
+cyan='\e[1;36m'
+red='\e[1;31m'
+red_bg='\e[41m'
+green_bg='\e[42m'
+default='\e[0m'
+
+##
+# Color Functions
+##
+color_green(){
+echo -ne "$green$1$default"
+}
+color_cyan(){
+echo -ne "$cyan$1$default"
+}
+color_red_bg(){
+  echo -ne "$red_bg$1$default"
+}
+
+color_green_bg(){
+  echo -ne "$green_bg$1$default"
+}
+
+echo_error() {
+  color_red_bg "$1"
+}
+
+echo_success() {
+  color_green_by "$1"
+}
+
+echo_prompt() {
+  color_green "$1"
+}
 #######################################
 # Check arg[1] conforms with naming rules of DBMS
 # Globals:
@@ -38,26 +76,6 @@ is_quit() {
 #   0 if user choose quit, (1 - no. choices) otherwise
 #######################################
 menu() {
-  ##
-  # Color Variables
-  ##
-  local green='\e[1;32m'
-  local cyan='\e[1;36m'
-  local clear='\e[0m'
-  
-  ##
-  # Color Functions
-  ##
-  color_green(){
-  echo -ne $green$1$clear
-  }
-  color_cyan(){
-  echo -ne $cyan$1$clear
-  }
-
-  ##
-  # Actual Menu
-  ##
   local prompt="$1"
   local i
   ((i=1))
