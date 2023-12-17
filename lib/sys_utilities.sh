@@ -26,15 +26,15 @@ color_green_bg(){
 }
 
 echo_error() {
-  color_red_bg "$1"
+  echo "$(color_red_bg "$1")"
 }
 
 echo_success() {
-  color_green_by "$1"
+  echo "$(color_green_bg "$1")"
 }
 
 echo_prompt() {
-  color_green "$1"
+  echo "$(color_green "$1")"
 }
 #######################################
 # Check arg[1] conforms with naming rules of DBMS
