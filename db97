@@ -12,12 +12,16 @@ echo ' ░░░░░░░░░░   ░░░░░░░░░░░      �
 echo '                                              ';
 echo '                                              ';
 
-export db97="$HOME/.db97"
-for dir in */; do
-  PATH="$PWD/$dir:$PATH"
-done
-PATH="$PWD:$PATH"
+# To be able to call the script from any where in the system
 
+script_absolute_path="$(dirname "$(readlink -f "$0")")"
+for dir in "$script_absolute_path"/*/; do
+  PATH="$dir:$PATH"
+done
+PATH="$script_absolute_path:$PATH"
+
+# Important Initialization
+export db97="$HOME/.db97"
 source "sys_utilities.sh" || { echo "Couldn't import 'sys_utilities'"; exit 1; }
 opts=("Create DB" "List DB" "Connect DB" "Drop DB")
 shopt -s extglob
