@@ -8,6 +8,7 @@ export LC_COLLATE=C
 
 get_db_name() {
   read -rp "DB name ('q' to quit): " db_name
+  db_name="${db_name// /-}"
   is_quit "$db_name" && exit 0;
 }
 
@@ -47,7 +48,7 @@ while [[ "$status" -ne 0 ]]; do
     ;;
 
     "${opts[5]}")                     # Delete from Table
-      echo "To Do"
+      delete_from_table "$db_name"
     ;;
 
     "${opts[6]}")                       # Update in Table
