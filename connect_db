@@ -8,6 +8,7 @@ export LC_COLLATE=C
 
 get_db_name() {
   read -rp "DB name ('q' to quit): " db_name
+  db_name="${db_name// /-}"
   is_quit "$db_name" && exit 0;
 }
 
