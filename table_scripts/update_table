@@ -123,7 +123,7 @@ if ! is_unique "$field_number" "$field_value"; then
   existing_unique_record="$(awk -F: -v fn="$field_number" -v fv="$field_value" '($fn == fv) {print}' "$db/$table")"
   
   if [[  "$affected_record" != "$existing_unique_record" ]]; then
-    echo_error "A record with [${field_value}] already exist, and the table has unique constraint on it."
+    echo_error "A record with [${field_value}] already exist, and the column has unique constraint on it."
     exit 1;
   fi
   
