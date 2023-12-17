@@ -1,62 +1,93 @@
 #!/bin/bash
-source table_utilities.sh || { echo "couldn't emport table utilities"; exist 1; }
+
+source table_utilities.sh || { echo "couldn't emport table utilities"; exit 1; }
+source sys_utilities.sh || { echo "couldn't emport sys utilities"; exit 1; }
+[[ -z "$db97" ]] && { echo -e "Environment Varialbe \$db97 isn't set.\nRun 'db97.sh' script instead"; exit 1; }
+[[ "$#" = 1 ]] || { echo "Need 1 argument [The DB name]"; exit 1; }
 db_name="$1"
+db="$db97/$db_name"
+tmp_file="/tmp/db99.update.tmp"
 
+#--------------------------------------------------------
 # Name Of The Table That Will Be Update
-read -p "Enter The Table To Update: " table_name
+#--------------------------------------------------------
+read -rp "Table name ('q' to quit) _> " table
+is_quit "$table" && { exit 1; }
 
+while [[ ! -f "$db/${table:-0}" ]]; do
+  echo "$table doesnt't exist"
+  read -rp "Table name ('q' to quit) _> " table
+  is_quit "$table" && { exit 1; }
+done
 
-if [ -f "$db97/$db_name/$table_name.meta" ]; then
-  
-  while read -r col; do
-    col_types+=("$col");
-  done < <(cut -d: -f2 ../.db97/ITI/student.meta )
-  
-  
-  cut -d: -f1 "$db97/$db_name/$table_name.meta" | nl
-  echo
-  # The Number Of Field To Update
-  while true; do
-    read -p "Choose The Number Of Field To Update: " field_number
-    echo
-    # if the input value is a number
-    if [[ $field_number =~ ^[0-9]+$ ]]; then
-      
-      if [[ "$field_number" -le 0 || "$field_number" -gt $(wc -l "$db97/$db_name/$table_name.meta" | cut -d ' ' -f 1) ]]; then
-        echo "Sorry - The Value Is Out Of Range..."
-        continue
-      else
-        read -p "Enter The Value To Update: " field_value # Enter The Value You Want To Update
-        check_type "$field_value" "${col_types[field_number -1]}" && break;
-      fi
-      
-    else
-      echo "Wrong Choice, Enter A Valid Number...."
-      continue
-    fi
-  done
-  
-else
-  echo "Sorry - "$table_name" Table Is Not Exist..."
-  exit 1
-fi
+#---------------------------------------------------------
+# Get Table Meta Data
+#---------------------------------------------------------
+while read -r col; do
+  col_names+=("$col");
+done < <(cut -d: -f1 "$db/$table.meta" )
 
+# get array of column types and constraints
+while read -r col; do
+  col_types+=("$col");
+done < <(cut -d: -f2 "$db/$table.meta" )
 
+while read -r col; do
+  all_col_rules+=("$col");
+done < <(cut -d: -f3 "$db/$table.meta" )
 
-
+#---------------------------------------------------------
+# Get the column that will be updated and it's value
+#---------------------------------------------------------
+cut -d: -f1 "$db/$table.meta" | nl
+echo
+# The Number Of Field To Update
 while true; do
-  cut -d: -f1 "$db97/$db_name/$table_name.meta" | nl
+  read -p "Choose The Number Of Field To Update ('q' to quit): " field_number
+  is_quit "$field_number" && exit 1;
   echo
-  read -rp "Search For The Record By: " table_record # Search The Record By
+  # if the input value is a number
+  if [[ $field_number =~ ^[0-9]+$ ]]; then
+    
+    if [[ "$field_number" -le 0 || "$field_number" -gt $(wc -l "$db97/$db_name/$table.meta" | cut -d ' ' -f 1) ]]; then
+      echo "Sorry - The Value Is Out Of Range..."
+      continue
+    else
+      read -p "Enter The Value To Update ('q' to quit): " field_value # Enter The Value You Want To Update
+      is_quit "$field_value" && exit 1;
+      
+      # Input Validation
+      check_type "$field_value" "${col_types[field_number -1]}" || continue;
+      if [[ "${all_col_rules[field_number-1]}" =~ nn ||  "${all_col_rules[field_number-1]}" =~ pk ]]; then
+        is_null "$field_value" && { echo "Value Cannot be Null"; continue; }
+      fi
+      break;
+    fi
+    
+  else
+    echo "Wrong Choice, Enter A Valid Number...."
+    continue
+  fi
+done
+
+#-------------------------------------------------------------------
+# Get condition column and it's value to search by
+#-------------------------------------------------------------------
+while true; do
+  cut -d: -f1 "$db97/$db_name/$table.meta" | nl
+  echo
+  read -rp "Search For The Record By ('q' to quit): " table_record # Search The Record By
+  is_quit "$table_record" && exit 1;
   echo
   
   if [[ $table_record =~ ^[0-9]+$  ]]; then  # It's commonly used in conditional statements to test if a variable contains any value or is empty.
     
-    if [[ "$table_record" -le 0 || "$table_record" -gt $(wc -l "$db97/$db_name/$table_name.meta" | cut -d ' ' -f 1) ]]; then
+    if [[ "$table_record" -le 0 || "$table_record" -gt $(wc -l "$db97/$db_name/$table.meta" | cut -d ' ' -f 1) ]]; then
       echo "The Choice Is Out Of The Range, Enter A Valid Number..."
       continue
     else
-      read -rp "Enter The Value Search By: " record_value
+      read -rp "Enter The Value Search By ('q' to quit): " record_value
+      is_quit "$record_value" && exit 1;
       check_type "$record_value" "${col_types[table_record -1]}" &&  break;
     fi
   else
@@ -65,8 +96,48 @@ while true; do
   fi
 done
 
-awk -F: -v fn="$field_number" -v fv="$field_value" -v tr="$table_record" -v rv="$record_value" '{ if ($tr == rv) { $fn = fv; print} else { print } }' "$db97/$db_name/$table_name" > temp_file
-mv temp_file "$db97/$db_name/$table_name"
-echo "Value replaced successfully!"
+#------------------------------------------------------------------------------------
+# Make updates only if column to be updated is has no unique constraints (pk || u) on it
+#-------------------------------------------------------------------------------------
 
-# "$db97/$db_name/$table_name" > temp_file && mv temp_file "$db97/$db_name/$table_name" && echo "Value replaced successfully!"
+if [[ ! ("${all_col_rules[field_number-1]}" =~ pk ||  "${all_col_rules[field_number-1]}" =~ u) ]]; then
+  awk -v fn="$field_number" -v fv="$field_value" -v tr="$table_record" -v rv="$record_value" 'BEGIN {FS=":"; OFS=":"} { if ($tr == rv) { $fn = fv; print} else { print } }' "$db97/$db_name/$table" > $tmp_file
+  mv $tmp_file "$db97/$db_name/$table"
+  echo "Value replaced successfully!"
+  exit 0;
+fi
+
+#------------------------------------------------------------------------------------
+# Handle Updating columns with unique constraints (pk || u) on it
+#-------------------------------------------------------------------------------------
+# [1] If update statment affect multipl rows abort
+affected_cols_count="$(awk -F: -v tr="$table_record" -v rv="$record_value" '($tr == rv) {print}' "$db/$table" | wc -l)"
+if [[ "$affected_cols_count" -gt 1 ]]; then
+  echo "Update statment would affect ${affected_cols_count} records and the column ${col_names[field_number-1]} has unique constriants on it. Please Try Again."
+  exit 1;
+fi
+
+# [2] If value to be updated not unique then display the appropriate message and abort
+if ! is_unique "$field_number" "$field_value"; then
+  affected_record="$(awk -F: -v tr="$table_record" -v rv="$record_value" '($tr == rv) {print}' "$db/$table")"
+  existing_unique_record="$(awk -F: -v fn="$field_number" -v fv="$field_value" '($fn == fv) {print}' "$db/$table")"
+  
+  if [[  "$affected_record" != "$existing_unique_record" ]]; then
+    echo "A record with [${field_value}] already exist, and the table has unique constraint on it."
+    exit 1;
+  fi
+  
+  echo "Record Updated Succesfully"
+  exit 0;
+  
+fi
+
+#  [3] Value is unique safe to update
+awk -v fn="$field_number" -v fv="$field_value" -v tr="$table_record" -v rv="$record_value" 'BEGIN {FS=":"; OFS=":"} { if ($tr == rv) { $fn = fv; print} else { print } }' "$db/$table" > "$tmp_file"
+mv "$tmp_file" "$db97/$db_name/$table"
+echo "Value replaced successfully!"
+exit 0;
+
+
+
+
