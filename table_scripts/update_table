@@ -103,7 +103,7 @@ done
 if [[ ! ("${all_col_rules[field_number-1]}" =~ pk ||  "${all_col_rules[field_number-1]}" =~ u) ]]; then
   awk -v fn="$field_number" -v fv="$field_value" -v tr="$table_record" -v rv="$record_value" 'BEGIN {FS=":"; OFS=":"} { if ($tr == rv) { $fn = fv; print} else { print } }' "$db97/$db_name/$table" > $tmp_file
   mv $tmp_file "$db97/$db_name/$table"
-  echo "Value replaced successfully!"
+  echo_success "Value replaced successfully!"
   exit 0;
 fi
 
@@ -113,7 +113,7 @@ fi
 # [1] If update statment affect multipl rows abort
 affected_cols_count="$(awk -F: -v tr="$table_record" -v rv="$record_value" '($tr == rv) {print}' "$db/$table" | wc -l)"
 if [[ "$affected_cols_count" -gt 1 ]]; then
-  echo "Update statment would affect ${affected_cols_count} records and the column ${col_names[field_number-1]} has unique constriants on it. Please Try Again."
+  echo_error "Update statment would affect ${affected_cols_count} records and the column ${col_names[field_number-1]} has unique constriants on it. Please Try Again."
   exit 1;
 fi
 
@@ -123,11 +123,11 @@ if ! is_unique "$field_number" "$field_value"; then
   existing_unique_record="$(awk -F: -v fn="$field_number" -v fv="$field_value" '($fn == fv) {print}' "$db/$table")"
   
   if [[  "$affected_record" != "$existing_unique_record" ]]; then
-    echo "A record with [${field_value}] already exist, and the table has unique constraint on it."
+    echo_error "A record with [${field_value}] already exist, and the table has unique constraint on it."
     exit 1;
   fi
   
-  echo "Record Updated Succesfully"
+  echo_success "Record Updated Succesfully"
   exit 0;
   
 fi
@@ -135,7 +135,7 @@ fi
 #  [3] Value is unique safe to update
 awk -v fn="$field_number" -v fv="$field_value" -v tr="$table_record" -v rv="$record_value" 'BEGIN {FS=":"; OFS=":"} { if ($tr == rv) { $fn = fv; print} else { print } }' "$db/$table" > "$tmp_file"
 mv "$tmp_file" "$db97/$db_name/$table"
-echo "Value replaced successfully!"
+echo_success "Value replaced successfully!"
 exit 0;
 
 
