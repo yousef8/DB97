@@ -6,7 +6,7 @@ DataBase Managment System (DBMS) using Bash Script language
 
 ## Demo
 
-![video demo](./imgs/demo.mp4)
+[![video demo](./imgs/demo.mp4)](./imgs/demo.mp4)
 
 ## Environment Variables
 
