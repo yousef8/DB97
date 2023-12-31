@@ -6,7 +6,7 @@ DataBase Managment System (DBMS) using Bash Script language
 
 ## Demo
 
-https://github.com/yousef8/DB97/assets/37050129/f58e091b-1da7-4730-b659-9c2924b36616
+https://github.com/yousef8/DB97/assets/37050129/6f0b7456-4216-4408-86ac-0ae96265f206
 
 ## Environment Variables
 
